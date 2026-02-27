@@ -15,6 +15,11 @@ namespace BikeShopTycoon.UI
         /// </summary>
         public static GameObject CreateButton(string name, string text, Transform parent, UITheme theme = null)
         {
+            if (parent == null)
+            {
+                throw new ArgumentNullException(nameof(parent), "Parent transform cannot be null");
+            }
+
             theme ??= UITheme.GetDefaultTheme();
 
             var buttonObj = new GameObject(name);
@@ -65,6 +70,11 @@ namespace BikeShopTycoon.UI
         /// </summary>
         public static GameObject CreatePanel(string name, Transform parent, float width, float height, UITheme theme = null)
         {
+            if (parent == null)
+            {
+                throw new ArgumentNullException(nameof(parent), "Parent transform cannot be null");
+            }
+
             theme ??= UITheme.GetDefaultTheme();
 
             var panelObj = new GameObject(name);
@@ -107,6 +117,11 @@ namespace BikeShopTycoon.UI
         /// </summary>
         public static GameObject CreateProgressBar(string name, Transform parent, float width, float height, UITheme theme = null)
         {
+            if (parent == null)
+            {
+                throw new ArgumentNullException(nameof(parent), "Parent transform cannot be null");
+            }
+
             theme ??= UITheme.GetDefaultTheme();
 
             var barObj = new GameObject(name);
@@ -136,7 +151,11 @@ namespace BikeShopTycoon.UI
 
             // 添加 Slider 组件
             var slider = barObj.AddComponent<Slider>();
-            slider.targetGraphic = fillImage;
+            slider.targetGraphic = bgImage;
+            slider.fillRect = fillRect;
+            slider.minValue = 0;
+            slider.maxValue = 1;
+            slider.value = 0.5f;  // 初始值 50%
 
             return barObj;
         }
@@ -144,8 +163,13 @@ namespace BikeShopTycoon.UI
         /// <summary>
         /// 创建 HUD 信息框
         /// </summary>
-        public static GameObject CreateHUDBox(string name, Transform parent, string iconText, string valueText, UITheme theme = null)
+        public static GameObject CreateHUDBox(string name, Transform parent, string iconLabel, string valueText, UITheme theme = null)
         {
+            if (parent == null)
+            {
+                throw new ArgumentNullException(nameof(parent), "Parent transform cannot be null");
+            }
+
             theme ??= UITheme.GetDefaultTheme();
 
             var boxObj = new GameObject(name);
@@ -169,7 +193,7 @@ namespace BikeShopTycoon.UI
             var iconObj = new GameObject("Icon");
             iconObj.transform.SetParent(boxObj.transform, false);
             var iconTextComp = iconObj.AddComponent<Text>();
-            iconTextComp.text = iconText;
+            iconTextComp.text = iconLabel;
             iconTextComp.fontSize = 24;
             iconTextComp.alignment = TextAnchor.MiddleCenter;
 
