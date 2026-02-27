@@ -14,11 +14,19 @@ namespace BikeShopTycoon.GameSystems
         private List<Customer> activeCustomers;
         private List<CustomerStory> storyDatabase;
         private PlayerData playerData;
+        
+        // 使用 System.Random 替代 UnityEngine.Random
+        private Random random;
 
         public event Action<Customer> OnCustomerEnter;
         public event Action<Customer> OnCustomerLeave;
         public event Action<Customer, bool> OnTransactionComplete;
         public event Action<CustomerStory> OnStoryRevealed;
+        
+        /// <summary>
+        /// 网红顾客带来的客流增加事件
+        /// </summary>
+        public event Action<int> OnInfluencerTrafficBoost;
 
         public int ActiveCustomerCount => activeCustomers.Count;
 
@@ -28,6 +36,7 @@ namespace BikeShopTycoon.GameSystems
             this.settings = settings ?? new CustomerGeneratorSettings();
             this.activeCustomers = new List<Customer>();
             this.storyDatabase = new List<CustomerStory>();
+            this.random = new Random();
             
             LoadStories();
         }
@@ -143,7 +152,9 @@ namespace BikeShopTycoon.GameSystems
             if (customer.Type == CustomerType.Influencer)
             {
                 playerData.FansCount += 50;
-                // TODO: 触发客流增加效果
+                // 触发客流增加效果
+                int trafficBoost = random.Next(5, 15);
+                OnInfluencerTrafficBoost?.Invoke(trafficBoost);
             }
 
             activeCustomers.Remove(customer);
@@ -201,7 +212,7 @@ namespace BikeShopTycoon.GameSystems
             int totalWeight = settings.StudentWeight + settings.CommuterWeight + 
                               settings.EnthusiastWeight + settings.RacerWeight + settings.InfluencerWeight;
             
-            int roll = UnityEngine.Random.Range(0, totalWeight);
+            int roll = random.Next(totalWeight);
             
             if (roll < settings.StudentWeight) return CustomerType.Student;
             if (roll < settings.StudentWeight + settings.CommuterWeight) return CustomerType.Commuter;
@@ -214,32 +225,35 @@ namespace BikeShopTycoon.GameSystems
 
         private void ConfigureCustomerByType(Customer customer)
         {
+            // 颜色选项用于网红顾客
+            string[] colors = { "白色", "黑色", "红色", "蓝色", "黄色" };
+            
             switch (customer.Type)
             {
                 case CustomerType.Student:
-                    customer.Budget = UnityEngine.Random.Range(1500, 5000);
+                    customer.Budget = random.Next(1500, 5001);
                     customer.Needs.NeedForBeginners = true;
                     customer.Needs.PreferredTier = ItemTier.Entry;
                     break;
                 case CustomerType.Commuter:
-                    customer.Budget = UnityEngine.Random.Range(2000, 8000);
+                    customer.Budget = random.Next(2000, 8001);
                     customer.Needs.NeedForCommuting = true;
                     customer.Needs.PreferredMaterial = FrameMaterial.Aluminum;
                     break;
                 case CustomerType.CyclingEnthusiast:
-                    customer.Budget = UnityEngine.Random.Range(5000, 30000);
+                    customer.Budget = random.Next(5000, 30001);
                     customer.Needs.NeedForTraining = true;
                     customer.Needs.PreferredTier = ItemTier.Mid;
                     break;
                 case CustomerType.Racer:
-                    customer.Budget = UnityEngine.Random.Range(20000, 100000);
+                    customer.Budget = random.Next(20000, 100001);
                     customer.Needs.NeedForRacing = true;
                     customer.Needs.PreferredTier = ItemTier.Pro;
                     break;
                 case CustomerType.Influencer:
-                    customer.Budget = UnityEngine.Random.Range(8000, 50000);
+                    customer.Budget = random.Next(8000, 50001);
                     customer.Needs.NeedHighVisual = true;
-                    customer.Needs.PreferredColor = "白色"; // TODO: 随机颜色
+                    customer.Needs.PreferredColor = colors[random.Next(colors.Length)];
                     break;
             }
         }
@@ -247,12 +261,12 @@ namespace BikeShopTycoon.GameSystems
         private void TryAssignStory(Customer customer)
         {
             // 30% 概率分配故事
-            if (UnityEngine.Random.value > 0.3f) return;
+            if (random.NextDouble() > 0.3) return;
 
             var availableStories = storyDatabase.FindAll(s => s.TargetCustomerType == customer.Type);
             if (availableStories.Count > 0)
             {
-                var story = availableStories[UnityEngine.Random.Range(0, availableStories.Count)];
+                var story = availableStories[random.Next(availableStories.Count)];
                 customer.StoryId = story.Id;
             }
         }
@@ -261,8 +275,8 @@ namespace BikeShopTycoon.GameSystems
         {
             string[] firstNames = { "张", "李", "王", "刘", "陈", "杨", "赵", "黄", "周", "吴" };
             string[] lastNames = { "伟", "芳", "娜", "秀英", "敏", "静", "丽", "强", "磊", "军" };
-            return firstNames[UnityEngine.Random.Range(0, firstNames.Length)] + 
-                   lastNames[UnityEngine.Random.Range(0, lastNames.Length)];
+            return firstNames[random.Next(firstNames.Length)] + 
+                   lastNames[random.Next(lastNames.Length)];
         }
 
         private void LoadStories()
