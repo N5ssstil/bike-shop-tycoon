@@ -97,6 +97,8 @@ namespace BikeShopTycoon.Core
                     // 数据完整性检查
                     if (ValidateData(data))
                     {
+                        // 数据验证通过后，进行修复
+                        data.ValidateAndRepair();
                         result.Success = true;
                         result.Data = data;
                         return result;
@@ -125,6 +127,8 @@ namespace BikeShopTycoon.Core
                     
                     if (ValidateData(data))
                     {
+                        // 数据验证通过后，进行修复
+                        data.ValidateAndRepair();
                         result.Success = true;
                         result.Data = data;
                         result.WasRestoredFromBackup = true;

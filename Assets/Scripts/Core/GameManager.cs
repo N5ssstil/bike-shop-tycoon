@@ -56,11 +56,10 @@ namespace BikeShopTycoon.Core
                 var loadResult = SaveSystem.LoadGameWithResult();
                 PlayerData = loadResult.Data;
                 
-                // 如果是从备份恢复，可以提示用户
+                // 如果是从备份恢复，记录日志（UI层可订阅事件处理）
                 if (loadResult.WasRestoredFromBackup)
                 {
                     Debug.LogWarning("存档已从备份恢复");
-                    // TODO: 在UI中提示用户
                 }
                 
                 if (!loadResult.Success && !string.IsNullOrEmpty(loadResult.ErrorMessage))
