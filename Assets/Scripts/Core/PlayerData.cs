@@ -9,6 +9,10 @@ namespace BikeShopTycoon.Core
     [Serializable]
     public class PlayerData
     {
+        // 存档元数据
+        public int SaveVersion;             // 存档版本号
+        public string LastSaveTime;         // 最后保存时间
+
         // 基础属性
         public int Money = 10000;           // 初始资金 1万
         public int Reputation = 10;         // 初始口碑
@@ -35,10 +39,41 @@ namespace BikeShopTycoon.Core
         public bool HasTeam = false;
         public TeamData Team;
 
+        /// <summary>
+        /// 默认构造函数 - 初始化新游戏数据
+        /// </summary>
         public PlayerData()
         {
+            // 确保列表已初始化
+            UnlockedBrands = UnlockedBrands ?? new List<string>();
+            UnlockedItems = UnlockedItems ?? new List<string>();
+            CompletedMilestones = CompletedMilestones ?? new List<string>();
+            CustomerFriends = CustomerFriends ?? new List<string>();
+
             // 初始解锁入门品牌
-            UnlockedBrands.Add("本地品牌");
+            if (!UnlockedBrands.Contains("本地品牌"))
+            {
+                UnlockedBrands.Add("本地品牌");
+            }
+        }
+
+        /// <summary>
+        /// 数据完整性检查和修复
+        /// </summary>
+        public void ValidateAndRepair()
+        {
+            // 确保所有列表不为空
+            UnlockedBrands = UnlockedBrands ?? new List<string>();
+            UnlockedItems = UnlockedItems ?? new List<string>();
+            CompletedMilestones = CompletedMilestones ?? new List<string>();
+            CustomerFriends = CustomerFriends ?? new List<string>();
+
+            // 数值范围修正
+            Money = Math.Max(0, Money);
+            Reputation = Math.Max(0, Math.Min(1000, Reputation));
+            Day = Math.Max(1, Day);
+            ShopLevel = Math.Max(1, Math.Min(5, ShopLevel));
+            FansCount = Math.Max(0, FansCount);
         }
     }
 
