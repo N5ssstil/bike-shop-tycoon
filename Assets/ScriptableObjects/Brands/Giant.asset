@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
+  m_Name: Giant
+  m_EditorClassIdentifier: BikeShop.Data.BikeBrand
+  brandId: brand_giant
+  brandName: "Giant (捷安特)"
+  description: "全球最大的自行车制造商，以高性价比著称。从入门到顶级车型应有尽有。"
+  brandLogo: {fileID: 0}
+  baseReputation: 10
+  unlockCost: 0
+  qualityMultiplier: 1
+  priceMultiplier: 1
+  targetCustomerTypes:
+  - "通勤族"
+  - "运动族"
+  - "学生"

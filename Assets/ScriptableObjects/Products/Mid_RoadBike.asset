@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
+  m_Name: Mid_RoadBike
+  m_EditorClassIdentifier: BikeShop.Data.BikeProduct
+  productId: bike_mid_001
+  productName: "进阶公路车 - Giant TCR Advanced 2"
+  description: "碳纤维车架，Shimano 105 变速系统，适合有一定基础的骑行爱好者和业余训练。"
+  brand: {fileID: 11400000, guid: 00000000000000000000000000000001, type: 2}
+  baseCost: 8000
+  basePrice: 12800
+  reputationGain: 5
+  qualityLevel: 3
+  bikeType: 0
+  availableColors:
+  - "红色"
+  - "黑色"
+  - "白色"
+  preferredCustomerType: "CyclingEnthusiast"
+  preferredPriceRange: "中等"

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00000000000000000000000000000000, type: 3}
+  m_Name: Entry_RoadBike
+  m_EditorClassIdentifier: BikeShop.Data.BikeProduct
+  productId: bike_entry_001
+  productName: "入门公路车 - Giant Contend 2"
+  description: "适合新手的入门级公路车，铝合金车架，碳纤维前叉，Shimano Claris 变速系统。"
+  brand: {fileID: 11400000, guid: 00000000000000000000000000000001, type: 2}
+  baseCost: 2000
+  basePrice: 3200
+  reputationGain: 2
+  qualityLevel: 1
+  bikeType: 0
+  availableColors:
+  - "白色"
+  - "黑色"
+  - "蓝色"
+  preferredCustomerType: "Student"
+  preferredPriceRange: "入门"
