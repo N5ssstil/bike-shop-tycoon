@@ -10,6 +10,8 @@ namespace BikeShopTycoon.UI
     /// </summary>
     public class HUDController : MonoBehaviour
     {
+        public static HUDController Instance { get; private set; }
+
         [Header("显示组件")]
         public TextMeshProUGUI moneyText;
         public TextMeshProUGUI reputationText;
@@ -20,6 +22,16 @@ namespace BikeShopTycoon.UI
         public GameObject notificationPrefab;
         public Transform notificationContainer;
 
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
+
         private void Start()
         {
             // 订阅事件
@@ -27,6 +39,16 @@ namespace BikeShopTycoon.UI
             {
                 GameManager.Instance.OnMoneyChanged += UpdateMoney;
                 GameManager.Instance.OnReputationChanged += UpdateReputation;
+                
+                // 初始化显示
+                UpdateMoney(GameManager.Instance.PlayerData.Money);
+                UpdateReputation(GameManager.Instance.PlayerData.Reputation);
+            }
+
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnDayStart += UpdateDay;
+                UpdateDay(TimeManager.Instance.currentDay);
             }
         }
 
@@ -36,6 +58,11 @@ namespace BikeShopTycoon.UI
             {
                 GameManager.Instance.OnMoneyChanged -= UpdateMoney;
                 GameManager.Instance.OnReputationChanged -= UpdateReputation;
+            }
+
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnDayStart -= UpdateDay;
             }
         }
 
@@ -65,7 +92,8 @@ namespace BikeShopTycoon.UI
         /// </summary>
         public void UpdateDay(int day)
         {
-            dayText.text = $"第 {day} 天";
+            if (dayText != null)
+                dayText.text = $"第 {day} 天";
         }
 
         /// <summary>
@@ -74,7 +102,10 @@ namespace BikeShopTycoon.UI
         public void ShowNotification(string message, NotificationType type = NotificationType.Info)
         {
             if (notificationPrefab == null || notificationContainer == null)
+            {
+                Debug.Log($"[HUD] {message}");
                 return;
+            }
 
             var notification = Instantiate(notificationPrefab, notificationContainer);
             var text = notification.GetComponentInChildren<TextMeshProUGUI>();
@@ -89,10 +120,10 @@ namespace BikeShopTycoon.UI
             {
                 image.color = type switch
                 {
-                    NotificationType.Success => Color.green,
-                    NotificationType.Warning => Color.yellow,
-                    NotificationType.Error => Color.red,
-                    _ => Color.white
+                    NotificationType.Success => new Color(0.2f, 0.8f, 0.2f),
+                    NotificationType.Warning => new Color(0.9f, 0.7f, 0.2f),
+                    NotificationType.Error => new Color(0.9f, 0.3f, 0.3f),
+                    _ => new Color(0.8f, 0.8f, 0.8f)
                 };
             }
 
