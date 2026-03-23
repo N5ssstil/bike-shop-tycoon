@@ -38,7 +38,7 @@ namespace BikeShopTycoon.GameSystems
         }
 
         /// <summary>
-        /// 执行维修
+        /// 执行维修（不处理金钱，由调用者处理）
         /// </summary>
         public RepairResult ExecuteRepair(RepairJob job)
         {
@@ -62,8 +62,7 @@ namespace BikeShopTycoon.GameSystems
             result.Income = baseIncome;
             result.ReputationGain = reputationGain;
 
-            // 更新玩家数据
-            playerData.Money += baseIncome;
+            // 更新口碑（金钱由调用者通过 GameManager 处理）
             playerData.Reputation += reputationGain;
 
             job.Status = RepairStatus.Completed;
@@ -175,5 +174,18 @@ namespace BikeShopTycoon.GameSystems
         public int Income;
         public int ReputationGain;
         public string Message;
+    }
+
+    /// <summary>
+    /// 维修类型
+    /// </summary>
+    public enum RepairType
+    {
+        FlatTire,           // 爆胎修补
+        GearAdjustment,     // 变速调试
+        BrakeService,       // 刹车保养
+        WheelTruing,        // 编圈调整
+        FullService,        // 全车保养
+        CustomTuning        // 定制调校
     }
 }
