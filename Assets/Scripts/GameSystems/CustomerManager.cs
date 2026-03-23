@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using BikeShopTycoon.Data;
 using BikeShopTycoon.Core;
-using BikeShop.Data;
 
 namespace BikeShopTycoon.GameSystems
 {

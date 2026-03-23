@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using BikeShop.Data;
 
 namespace BikeShopTycoon.Data
 {

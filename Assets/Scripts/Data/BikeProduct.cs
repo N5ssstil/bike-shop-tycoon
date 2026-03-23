@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace BikeShop.Data
+namespace BikeShopTycoon.Data
 {
     /// <summary>
     /// 自行车商品配置

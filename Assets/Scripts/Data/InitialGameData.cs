@@ -1,5 +1,4 @@
 using UnityEngine;
-using BikeShop.Data;
 using BikeShopTycoon.Core;
 
 namespace BikeShopTycoon.Data

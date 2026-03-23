@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BikeShop.Data
+namespace BikeShopTycoon.Data
 {
     /// <summary>
     /// 自行车品牌数据
