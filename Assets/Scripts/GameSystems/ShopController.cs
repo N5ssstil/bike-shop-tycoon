@@ -42,7 +42,8 @@ namespace BikeShopTycoon.GameSystems
 
         // 系统
         private CustomerManager customerManager;
-        private InventoryManager inventoryManager;
+        private InventoryPanel inventoryPanel;
+        private InventoryData inventoryData;
         
         // 状态
         private Customer currentCustomer;
@@ -51,7 +52,29 @@ namespace BikeShopTycoon.GameSystems
 
         private void Awake()
         {
-            // 初始化系统
+            // 获取库存面板引用
+            inventoryPanel = FindObjectOfType<InventoryPanel>();
+            if (inventoryPanel != null)
+            {
+                inventoryData = inventoryPanel.GetInventoryData();
+            }
+            
+            // 如果没有库存面板，创建默认库存
+            if (inventoryData == null)
+            {
+                inventoryData = new InventoryData();
+                // 添加初始库存
+                var products = InitialProducts.CreateDefaultProducts();
+                foreach (var product in products)
+                {
+                    if (product.Tier == ItemTier.Entry)
+                    {
+                        inventoryData.AddItem(product, 3, product.PurchasePrice);
+                    }
+                }
+            }
+
+            // 初始化顾客管理系统
             if (GameManager.Instance != null && GameManager.Instance.PlayerData != null)
             {
                 var settings = new CustomerGeneratorSettings
@@ -64,7 +87,6 @@ namespace BikeShopTycoon.GameSystems
                 };
                 
                 customerManager = new CustomerManager(GameManager.Instance.PlayerData, settings);
-                inventoryManager = new InventoryManager(GameManager.Instance.PlayerData);
             }
 
             // 绑定事件
@@ -322,24 +344,32 @@ namespace BikeShopTycoon.GameSystems
 
         private void CompleteTransaction(Item item)
         {
-            if (currentCustomer == null || inventoryManager == null) return;
+            if (currentCustomer == null || inventoryData == null) return;
 
-            // 检查库存并销售（SellItem 内部已处理金钱增加）
-            if (inventoryManager.SellItem(item.Id, 1, item.SellPrice))
-            {
-                // 完成交易
-                currentCustomer.State = CustomerState.Purchasing;
-                customerManager.CompleteTransaction(currentCustomer, item);
-                
-                CloseTransactionPanel();
-            }
-            else
+            // 检查库存
+            var invItem = inventoryData.GetItem(item.Id);
+            if (invItem == null || invItem.Quantity < 1)
             {
                 if (HUDController.Instance != null)
                 {
                     HUDController.Instance.ShowNotification("库存不足！", NotificationType.Error);
                 }
+                return;
             }
+
+            // 扣除库存
+            inventoryData.RemoveItem(item.Id, 1);
+            
+            // 增加金钱
+            GameManager.Instance?.AddMoney(item.SellPrice);
+            
+            // 完成交易
+            currentCustomer.State = CustomerState.Purchasing;
+            customerManager.CompleteTransaction(currentCustomer, item);
+            
+            CloseTransactionPanel();
+            
+            Debug.Log($"[ShopController] 交易完成: {item.Name}, 售价: ¥{item.SellPrice}");
         }
 
         #endregion

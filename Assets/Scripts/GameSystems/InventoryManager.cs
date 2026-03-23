@@ -60,9 +60,9 @@ namespace BikeShopTycoon.GameSystems
         }
 
         /// <summary>
-        /// 出售商品
+        /// 出售商品（只处理库存，不处理金钱）
         /// </summary>
-        public bool SellItem(string itemId, int quantity, int sellPrice)
+        public bool SellItem(string itemId, int quantity)
         {
             var invItem = inventory.GetItem(itemId);
             if (invItem == null || invItem.Quantity < quantity)
@@ -71,7 +71,6 @@ namespace BikeShopTycoon.GameSystems
             }
 
             inventory.RemoveItem(itemId, quantity);
-            playerData.Money += sellPrice * quantity;
             
             // 根据商品类型增加口碑
             int reputationGain = CalculateReputationGain(invItem.ItemData);
@@ -79,6 +78,26 @@ namespace BikeShopTycoon.GameSystems
 
             OnItemSold?.Invoke(invItem, quantity);
             return true;
+        }
+
+        /// <summary>
+        /// 出售商品并返回售价（供调用者处理金钱）
+        /// </summary>
+        public (bool success, int totalPrice, int reputationGain) SellItemWithPrice(string itemId, int quantity, int sellPrice)
+        {
+            var invItem = inventory.GetItem(itemId);
+            if (invItem == null || invItem.Quantity < quantity)
+            {
+                return (false, 0, 0);
+            }
+
+            inventory.RemoveItem(itemId, quantity);
+            
+            int reputationGain = CalculateReputationGain(invItem.ItemData);
+            playerData.Reputation += reputationGain;
+
+            OnItemSold?.Invoke(invItem, quantity);
+            return (true, sellPrice * quantity, reputationGain);
         }
 
         /// <summary>
