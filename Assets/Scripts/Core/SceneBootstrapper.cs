@@ -4,7 +4,7 @@ using BikeShopTycoon.Core;
 using BikeShopTycoon.UI;
 using BikeShopTycoon.GameSystems;
 
-namespace BikeShopTycoon
+namespace BikeShopTycoon.Core
 {
     /// <summary>
     /// 场景启动器 - 确保场景包含所有必要组件

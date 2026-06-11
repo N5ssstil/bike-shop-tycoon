@@ -22,6 +22,9 @@ namespace BikeShopTycoon.UI
         public GameObject brakeToolButton;        // 刹车工具
         public GameObject confirmRepairButton;    // 确认维修按钮
 
+        [Header("提示文本")]
+        public TMPro.TextMeshProUGUI statusMessageText; // 状态提示文本
+
         private List<RepairServiceData> availableServices = new List<RepairServiceData>();
         private List<RepairServiceData> selectedServices = new List<RepairServiceData>();
         private Dictionary<string, GameObject> toolButtons = new Dictionary<string, GameObject>();
@@ -120,9 +123,12 @@ namespace BikeShopTycoon.UI
                 if (serviceItemPrefab != null)
                 {
                     GameObject itemObj = Instantiate(serviceItemPrefab, serviceListContainer);
-                    // TODO: 设置服务项的 UI 内容（名称、描述、价格）
-                    // 示例：itemObj.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = $"{service.Name} - {service.Cost:N0}元";
-                    
+                    var tmp = itemObj.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                    if (tmp != null)
+                    {
+                        tmp.text = $"{service.Name} - {service.Cost:N0}元\n{service.Description}";
+                    }
+
                     // 添加点击事件（选择/取消选择服务）
                     var button = itemObj.GetComponent<UnityEngine.UI.Button>();
                     if (button != null)
@@ -143,22 +149,19 @@ namespace BikeShopTycoon.UI
         {
             var service = availableServices.Find(s => s.Name == serviceName);
             if (service == null) return;
-            
+
             if (selectedServices.Contains(service))
             {
                 selectedServices.Remove(service);
-                // 取消高亮
-                // TODO: 更新 UI 选中状态
             }
             else
             {
                 selectedServices.Add(service);
-                // 高亮选中
-                // TODO: 更新 UI 选中状态
             }
-            
+
             UpdateTotalCost();
             UpdateToolButtons();
+            UpdateConfirmButtonState();
         }
 
         /// <summary>
@@ -279,24 +282,32 @@ namespace BikeShopTycoon.UI
         /// </summary>
         private void ExecuteRepairServices()
         {
-            // TODO: 实际维修逻辑（如播放动画、更新自行车状态等）
             foreach (var service in selectedServices)
             {
+                string logMessage = "";
+
                 switch (service.ServiceType)
                 {
                     case RepairServiceType.Tire:
-                        // 执行爆胎更换逻辑
+                        logMessage = "已更换内外胎，完成爆胎维修";
                         break;
                     case RepairServiceType.Gear:
-                        // 执行变速调试逻辑
+                        logMessage = "已调整前后变速器，变速顺畅";
                         break;
                     case RepairServiceType.Brake:
-                        // 执行刹车保养逻辑
+                        logMessage = "已更换刹车片并调试刹车系统";
                         break;
                     case RepairServiceType.Full:
-                        // 执行全面保养逻辑
+                        logMessage = "已完成全车全面保养套餐";
                         break;
                 }
+
+                Debug.Log($"[Workshop] {logMessage}");
+            }
+
+            if (statusMessageText != null)
+            {
+                statusMessageText.text = $"✅ 成功完成 {selectedServices.Count} 项维修服务！";
             }
         }
 
@@ -322,7 +333,16 @@ namespace BikeShopTycoon.UI
         /// </summary>
         private void OnMoneyChanged(int newMoney)
         {
-            // 更新维修能力状态
+            UpdateConfirmButtonState();
+        }
+
+        /// <summary>
+        /// 更新确认按钮状态
+        /// </summary>
+        private void UpdateConfirmButtonState()
+        {
+            if (confirmRepairButton == null) return;
+
             bool canAfford = true;
             int totalCost = 0;
             foreach (var service in selectedServices)
@@ -330,8 +350,12 @@ namespace BikeShopTycoon.UI
                 totalCost += service.Cost;
             }
             canAfford = GameManager.Instance.CanAfford(totalCost);
-            
-            // TODO: 更新确认按钮状态（禁用/启用）
+
+            var button = confirmRepairButton.GetComponent<UnityEngine.UI.Button>();
+            if (button != null)
+            {
+                button.interactable = canAfford && selectedServices.Count > 0;
+            }
         }
 
         /// <summary>

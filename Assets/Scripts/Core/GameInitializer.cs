@@ -5,7 +5,7 @@ using BikeShopTycoon.GameSystems;
 using BikeShopTycoon.UI;
 using BikeShopTycoon.Data;
 
-namespace BikeShopTycoon
+namespace BikeShopTycoon.Core
 {
     /// <summary>
     /// 游戏初始化器 - 自动创建所有必要的游戏对象和数据

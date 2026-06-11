@@ -220,6 +220,121 @@ namespace BikeShopTycoon.Data
                 RequiredReputation = 5
             });
 
+            // 维修工具
+            products.Add(new Item
+            {
+                Id = "tool_tire_001",
+                Name = "基础维修工具包",
+                Description = "包含撬胎棒、打气筒、备用内胎",
+                Type = ItemType.Tools,
+                Tier = ItemTier.Entry,
+                Brand = "本地品牌",
+                PurchasePrice = 200,
+                SellPrice = 300,
+                Weight = 500,
+                Durability = 100,
+                Performance = 50,
+                RequiredReputation = 0
+            });
+
+            products.Add(new Item
+            {
+                Id = "tool_gear_001",
+                Name = "变速调试工具组",
+                Description = "内六角扳手、螺丝刀、变速调试架",
+                Type = ItemType.Tools,
+                Tier = ItemTier.Mid,
+                Brand = "SuperB",
+                PurchasePrice = 600,
+                SellPrice = 800,
+                Weight = 800,
+                Durability = 100,
+                Performance = 70,
+                RequiredReputation = 5
+            });
+
+            // 骑行周边
+            products.Add(new Item
+            {
+                Id = "acc_bottle_001",
+                Name = "骑行水壶",
+                Description = "750ml 大容量骑行水壶",
+                Type = ItemType.Accessories,
+                Tier = ItemTier.Entry,
+                Brand = "CamelBak",
+                PurchasePrice = 80,
+                SellPrice = 120,
+                Weight = 100,
+                Durability = 80,
+                Performance = 30,
+                RequiredReputation = 0
+            });
+
+            products.Add(new Item
+            {
+                Id = "apparel_jersey_001",
+                Name = "专业骑行服",
+                Description = "速干透气，夏季骑行必备",
+                Type = ItemType.Apparel,
+                Tier = ItemTier.Mid,
+                Brand = "Rapha",
+                PurchasePrice = 500,
+                SellPrice = 800,
+                Weight = 150,
+                Durability = 60,
+                Performance = 60,
+                RequiredReputation = 0
+            });
+
+            products.Add(new Item
+            {
+                Id = "apparel_shoe_001",
+                Name = "自锁骑行鞋",
+                Description = "碳纤维鞋底，高效踩踏",
+                Type = ItemType.Apparel,
+                Tier = ItemTier.High,
+                Brand = "Shimano",
+                PurchasePrice = 1200,
+                SellPrice = 1800,
+                Weight = 500,
+                Durability = 80,
+                Performance = 80,
+                RequiredReputation = 10
+            });
+
+            // 车架
+            products.Add(new Item
+            {
+                Id = "frame_carbon_001",
+                Name = "碳纤维车架",
+                Description = "轻量化碳纤维公路车架",
+                Type = ItemType.Frame,
+                Tier = ItemTier.High,
+                Brand = "本地品牌",
+                PurchasePrice = 4000,
+                SellPrice = 6000,
+                Weight = 950,
+                Durability = 60,
+                Performance = 85,
+                RequiredReputation = 30
+            });
+
+            products.Add(new Item
+            {
+                Id = "frame_aluminum_001",
+                Name = "铝合金车架",
+                Description = "耐用铝合金入门车架",
+                Type = ItemType.Frame,
+                Tier = ItemTier.Entry,
+                Brand = "本地品牌",
+                PurchasePrice = 800,
+                SellPrice = 1200,
+                Weight = 1800,
+                Durability = 85,
+                Performance = 40,
+                RequiredReputation = 0
+            });
+
             return products;
         }
     }

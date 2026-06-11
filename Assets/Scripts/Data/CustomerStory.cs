@@ -21,7 +21,7 @@ namespace BikeShopTycoon.Data
         public int maxBudget;
         public int minBudget;
 
-        [Header="匹配规则"]
+        [Header("匹配规则")]
         public float colorMatchWeight = 0.3f;
         public float brandMatchWeight = 0.2f;
         public float typeMatchWeight = 0.3f;

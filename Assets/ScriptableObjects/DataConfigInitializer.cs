@@ -1,7 +1,7 @@
 using UnityEngine;
-using BikeShop.Data;
+using BikeShopTycoon.Data;
 
-namespace BikeShop.Initializer
+namespace BikeShopTycoon.Initializer
 {
     /// <summary>
     /// 数据配置初始化工具（编辑器脚本）

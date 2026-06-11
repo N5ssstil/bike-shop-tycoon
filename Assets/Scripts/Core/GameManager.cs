@@ -1,4 +1,6 @@
 using UnityEngine;
+using BikeShopTycoon.GameSystems;
+using BikeShopTycoon.UI;
 
 namespace BikeShopTycoon.Core
 {
@@ -16,6 +18,10 @@ namespace BikeShopTycoon.Core
         [Header("玩家数据")]
         public PlayerData PlayerData;
 
+        [Header("子系统")]
+        public EventSystem EventSystem { get; private set; }
+        public AchievementSystem AchievementSystem { get; private set; }
+
         // 常量定义
         private const int MIN_MONEY = 0;
         private const int MAX_MONEY = int.MaxValue;
@@ -26,11 +32,13 @@ namespace BikeShopTycoon.Core
         public event System.Action<GameState> OnGameStateChanged;
         public event System.Action<int> OnMoneyChanged;
         public event System.Action<int> OnReputationChanged;
-        
+
         /// <summary>
         /// 资金不足事件
         /// </summary>
         public event System.Action<int> OnMoneyInsufficient;
+
+        private bool subsystemsInitialized = false;
 
         private void Awake()
         {
@@ -45,6 +53,19 @@ namespace BikeShopTycoon.Core
             InitializeGame();
         }
 
+        private void Start()
+        {
+            // 等待 TimeManager 就绪后再订阅
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnDayStart += OnNewDay;
+            }
+
+            // 订阅自身事件触发成就检查
+            OnMoneyChanged += (_) => CheckAchievements();
+            OnReputationChanged += (_) => CheckAchievements();
+        }
+
         private void InitializeGame()
         {
             PlayerData = new PlayerData();
@@ -55,18 +76,85 @@ namespace BikeShopTycoon.Core
             {
                 var loadResult = SaveSystem.LoadGameWithResult();
                 PlayerData = loadResult.Data;
-                
+
                 // 如果是从备份恢复，记录日志（UI层可订阅事件处理）
                 if (loadResult.WasRestoredFromBackup)
                 {
                     Debug.LogWarning("存档已从备份恢复");
                 }
-                
+
                 if (!loadResult.Success && !string.IsNullOrEmpty(loadResult.ErrorMessage))
                 {
                     Debug.LogError($"存档加载失败: {loadResult.ErrorMessage}");
                 }
             }
+
+            InitializeSubsystems();
+        }
+
+        /// <summary>
+        /// 初始化事件系统和成就系统
+        /// </summary>
+        private void InitializeSubsystems()
+        {
+            if (subsystemsInitialized) return;
+
+            EventSystem = new EventSystem(PlayerData);
+            AchievementSystem = new AchievementSystem(PlayerData);
+
+            // 订阅成就解锁事件
+            AchievementSystem.OnAchievementUnlocked += OnAchievementUnlocked;
+
+            subsystemsInitialized = true;
+            Debug.Log("[GameManager] 事件系统和成就系统已初始化");
+        }
+
+        /// <summary>
+        /// 新的一天
+        /// </summary>
+        private void OnNewDay(int day)
+        {
+            // 每天检查随机事件
+            EventSystem?.CheckForEvents(day, PlayerData.Reputation);
+
+            // 每天检查成就
+            AchievementSystem?.CheckAchievements();
+
+            Debug.Log($"[GameManager] 第 {day} 天开始");
+        }
+
+        /// <summary>
+        /// 成就解锁回调
+        /// </summary>
+        private void OnAchievementUnlocked(Achievement achievement)
+        {
+            Debug.Log($"[GameManager] 🏆 成就解锁: {achievement.Name} - {achievement.Description}");
+
+            if (achievement.RewardMoney > 0)
+            {
+                AddMoney(achievement.RewardMoney);
+            }
+            if (achievement.RewardReputation > 0)
+            {
+                AddReputation(achievement.RewardReputation);
+            }
+
+            // 通知 HUD
+            if (HUDController.Instance != null)
+            {
+                HUDController.Instance.ShowNotification(
+                    $"🏆 解锁成就: {achievement.Name}",
+                    NotificationType.Success
+                );
+            }
+        }
+
+        /// <summary>
+        /// 检查成就（供外部调用）
+        /// </summary>
+        public void CheckAchievements()
+        {
+            AchievementSystem?.CheckAchievements();
         }
 
         public void ChangeState(GameState newState)
@@ -162,6 +250,11 @@ namespace BikeShopTycoon.Core
             SaveSystem.DeleteSave();
             PlayerData = new PlayerData();
             CurrentState = GameState.Shop;
+
+            // 重新初始化子系统
+            subsystemsInitialized = false;
+            InitializeSubsystems();
+
             OnGameStateChanged?.Invoke(CurrentState);
             OnMoneyChanged?.Invoke(PlayerData.Money);
             OnReputationChanged?.Invoke(PlayerData.Reputation);

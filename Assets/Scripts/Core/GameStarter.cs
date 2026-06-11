@@ -3,7 +3,7 @@ using BikeShopTycoon.Core;
 using BikeShopTycoon.GameSystems;
 using BikeShopTycoon.UI;
 
-namespace BikeShopTycoon
+namespace BikeShopTycoon.Core
 {
     /// <summary>
     /// 游戏启动器 - 初始化所有系统

@@ -308,8 +308,38 @@ namespace BikeShopTycoon.GameSystems
 
         private void ShowAvailableProducts()
         {
-            // 显示可销售的商品列表
-            // 简化版本：显示几条示例商品
+            // 清空推荐列表
+            foreach (Transform child in productContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (inventoryData == null) return;
+
+            // 从库存加载可销售商品
+            var availableItems = inventoryData.Items;
+            foreach (var invItem in availableItems)
+            {
+                if (invItem.Quantity <= 0 || invItem.ItemData == null) continue;
+
+                if (productCardPrefab != null)
+                {
+                    GameObject card = Instantiate(productCardPrefab, productContainer);
+                    var tmp = card.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                    if (tmp != null)
+                    {
+                        tmp.text = $"{invItem.ItemData.Name}\n库存: {invItem.Quantity} | 售价: ¥{invItem.ItemData.SellPrice:N0}";
+                    }
+
+                    // 绑定点击推荐事件
+                    var button = card.GetComponent<UnityEngine.UI.Button>();
+                    if (button != null)
+                    {
+                        Item capturedItem = invItem.ItemData;
+                        button.onClick.AddListener(() => RecommendProduct(capturedItem));
+                    }
+                }
+            }
         }
 
         /// <summary>

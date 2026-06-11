@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using BikeShopTycoon.Core;
+using BikeShopTycoon.Data;
 
 namespace BikeShopTycoon.UI
 {
@@ -17,20 +18,20 @@ namespace BikeShopTycoon.UI
         public TMPro.TextMeshProUGUI customerDemandText; // 需求描述
         public Transform productRecommendationList; // 推荐商品列表容器
         public GameObject productItemPrefab;     // 商品项预制体
-        
+
         [Header("交互按钮")]
         public GameObject sellButton;           // 销售按钮
         public GameObject repairButton;          // 维修按钮
         public GameObject closeButton;           // 关闭按钮
 
-        private CustomerData currentCustomer;
-        private List<ProductData> recommendedProducts = new List<ProductData>();
+        private Customer currentCustomer;
+        private List<Item> recommendedProducts = new List<Item>();
 
         private void Start()
         {
             // 初始化时生成随机顾客
             GenerateRandomCustomer();
-            
+
             // 订阅口碑变化事件
             if (GameManager.Instance != null)
             {
@@ -54,22 +55,23 @@ namespace BikeShopTycoon.UI
             // 实际应从顾客配置数据加载
             string[] names = { "小明", "李华", "王芳", "张伟", "刘洋" };
             CustomerType[] types = { CustomerType.Student, CustomerType.Commuter, CustomerType.CyclingEnthusiast };
-            
+
             System.Random random = new System.Random();
             string name = names[random.Next(names.Length)];
             CustomerType type = types[random.Next(types.Length)];
-            
-            currentCustomer = new CustomerData
+
+            currentCustomer = new Customer
             {
                 Name = name,
                 Type = type,
                 Budget = GetCustomerBudget(type),
-                Demand = GetCustomerDemand(type)
             };
-            
+            currentCustomer.Needs = new CustomerNeeds();
+            string demandText = GetCustomerDemand(type);
+
             // 根据需求推荐商品
-            recommendedProducts = RecommendProducts(currentCustomer.Demand);
-            
+            recommendedProducts = RecommendProducts(demandText);
+
             // 刷新 UI
             RefreshCustomerUI();
         }
@@ -89,7 +91,7 @@ namespace BikeShopTycoon.UI
         }
 
         /// <summary>
-        /// 获取顾客需求（示例逻辑）
+        /// 获取顾客需求描述（示例逻辑）
         /// </summary>
         private string GetCustomerDemand(CustomerType type)
         {
@@ -105,23 +107,23 @@ namespace BikeShopTycoon.UI
         /// <summary>
         /// 根据需求推荐商品（示例逻辑）
         /// </summary>
-        private List<ProductData> RecommendProducts(string demand)
+        private List<Item> RecommendProducts(string demand)
         {
-            List<ProductData> products = new List<ProductData>();
-            
+            List<Item> products = new List<Item>();
+
             if (demand.Contains("入门") || demand.Contains("性价比"))
             {
-                products.Add(new ProductData { Name = "入门铝合金公路车", Price = 2000, Brand = "本地品牌" });
+                products.Add(new Item { Name = "入门铝合金公路车", SellPrice = 2000, Brand = "本地品牌" });
             }
             if (demand.Contains("通勤") || demand.Contains("耐用"))
             {
-                products.Add(new ProductData { Name = "通勤车", Price = 1500, Brand = "本地品牌" });
+                products.Add(new Item { Name = "通勤车", SellPrice = 1500, Brand = "本地品牌" });
             }
             if (demand.Contains("性能") || demand.Contains("中端"))
             {
-                products.Add(new ProductData { Name = "中端碳纤维公路车", Price = 8000, Brand = "速联" });
+                products.Add(new Item { Name = "中端碳纤维公路车", SellPrice = 8000, Brand = "速联" });
             }
-            
+
             return products;
         }
 
@@ -131,26 +133,29 @@ namespace BikeShopTycoon.UI
         private void RefreshCustomerUI()
         {
             if (customerPanel == null) return;
-            
+
             customerPanel.SetActive(true);
             customerNameText.text = currentCustomer.Name;
             customerTypeText.text = GetCustomerTypeDisplayName(currentCustomer.Type);
-            customerDemandText.text = currentCustomer.Demand;
-            
+            customerDemandText.text = GetCustomerDemand(currentCustomer.Type);
+
             // 清空现有推荐列表
             foreach (Transform child in productRecommendationList)
             {
                 Destroy(child.gameObject);
             }
-            
+
             // 生成推荐商品项
             foreach (var product in recommendedProducts)
             {
                 if (productItemPrefab != null)
                 {
                     GameObject itemObj = Instantiate(productItemPrefab, productRecommendationList);
-                    // TODO: 设置商品项的 UI 内容（名称、价格、品牌）
-                    // 示例：itemObj.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = $"{product.Name} - {product.Price:N0}元";
+                    var tmp = itemObj.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                    if (tmp != null)
+                    {
+                        tmp.text = $"{product.Name} - {product.SellPrice:N0}元";
+                    }
                 }
             }
         }
@@ -175,31 +180,33 @@ namespace BikeShopTycoon.UI
         public void OnSellProduct()
         {
             if (recommendedProducts.Count == 0) return;
-            
+
             // 默认销售第一个推荐商品
-            ProductData selectedProduct = recommendedProducts[0];
-            
+            Item selectedProduct = recommendedProducts[0];
+
             // 检查资金是否足够（顾客支付）
-            if (currentCustomer.Budget >= selectedProduct.Price)
+            if (currentCustomer.Budget >= selectedProduct.SellPrice)
             {
                 // 增加店铺资金
-                GameManager.Instance.AddMoney(selectedProduct.Price);
-                
+                GameManager.Instance.AddMoney(selectedProduct.SellPrice);
+
                 // 提升口碑
                 int reputationGain = CalculateReputationGain(selectedProduct, currentCustomer);
                 GameManager.Instance.AddReputation(reputationGain);
-                
+
                 // 显示交易成功提示
                 Debug.Log($"成功向{currentCustomer.Name}销售{selectedProduct.Name}！");
-                
+
                 // 关闭顾客面板
                 CloseCustomerPanel();
             }
             else
             {
-                // 顾客预算不足
                 Debug.LogWarning($"{currentCustomer.Name}预算不足，无法购买{selectedProduct.Name}");
-                // TODO: 显示提示信息
+                if (HUDController.Instance != null)
+                {
+                    HUDController.Instance.ShowNotification($"{currentCustomer.Name}预算不足！", NotificationType.Warning);
+                }
             }
         }
 
@@ -210,16 +217,16 @@ namespace BikeShopTycoon.UI
         {
             // 示例维修费用
             int repairCost = 200;
-            
+
             // 检查顾客是否能支付
             if (currentCustomer.Budget >= repairCost)
             {
                 // 增加店铺资金
                 GameManager.Instance.AddMoney(repairCost);
-                
+
                 // 提升口碑
                 GameManager.Instance.AddReputation(10);
-                
+
                 Debug.Log($"成功为{currentCustomer.Name}维修自行车！");
                 CloseCustomerPanel();
             }
@@ -232,17 +239,17 @@ namespace BikeShopTycoon.UI
         /// <summary>
         /// 计算口碑增益
         /// </summary>
-        private int CalculateReputationGain(ProductData product, CustomerData customer)
+        private int CalculateReputationGain(Item product, Customer customer)
         {
             // 基础口碑增益
             int baseGain = 20;
-            
+
             // 根据商品价格和顾客满意度调整
-            if (product.Price <= customer.Budget * 0.8f) // 顾客觉得物超所值
+            if (product.SellPrice <= customer.Budget * 0.8f) // 顾客觉得物超所值
             {
                 baseGain += 10;
             }
-            
+
             return baseGain;
         }
 
@@ -273,38 +280,5 @@ namespace BikeShopTycoon.UI
         {
             // 可用于更新 UI 或触发特殊事件
         }
-    }
-
-    /// <summary>
-    /// 顾客数据结构
-    /// </summary>
-    [System.Serializable]
-    public class CustomerData
-    {
-        public string Name;
-        public CustomerType Type;
-        public int Budget;
-        public string Demand;
-    }
-
-    /// <summary>
-    /// 顾客类型枚举
-    /// </summary>
-    public enum CustomerType
-    {
-        Student,            // 学生
-        Commuter,           // 通勤族
-        CyclingEnthusiast   // 骑行爱好者
-    }
-
-    /// <summary>
-    /// 商品数据结构
-    /// </summary>
-    [System.Serializable]
-    public class ProductData
-    {
-        public string Name;
-        public int Price;
-        public string Brand;
     }
 }
